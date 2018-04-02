@@ -1,28 +1,19 @@
+const mysql = require('mysql')
 
-const mongoose = require("mongoose");
-const request = require("request-promise");
-const getCourses = require("../helpers/getCourses.js")
 
 //connect to database 
 
-mongoose.connect("mongodb://database/payment");
-
-const Schema = mongoose.Schema
-//design schema for database
-const udemySchema = new Schema({
-  id: { type: Number, unique: true },
-  title: String,
-  price: String,   
-  headline: String,
-  num_subscribers: Number,
-  num_quizzes: Number,
-  num_lectures: Number,
-  image_240x135: String
-})
-//create model
-const Courses = mongoose.model("Courses", udemySchema);
+const client = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'password',
+  database: 'climber'
+});
+client.connect((err) => {
+  if (err) throw err;
+  console.log('Connected!');
+});
 
 
 
-
-module.exports = Courses
+module.exports = client

@@ -1,30 +1,53 @@
-const mongoose = require("mongoose");
-const request = require("request-promise");
-const getCourses = require("../helpers/getCourses.js")
-const udemyCourses = require("../db/index.js")
-const blueBird = require("bluebird")
-// Promise.Promisify(mongoose);
-const seed = async function () {
-	var data = await getCourses()
-	for (var i = 0; i < data.length; i++) { 
-    var course = data[i]
-      const courseDoc = new udemyCourses({
-        id: i,
-        title: course.title,
-        price: course.price,
-        headline: course.headline,
-        num_subscribers: course.num_subscribers,
-        num_quizzes: course.num_quizzes,
-        num_lectures: course.num_lectures,
-        image_240x135: course.image_240x135
-      });
-    try { 
-      await courseDoc.save();	
-    } catch (err) {
-      console.log(err);
-    }
-    console.log('success')
-  }
-} 
+const fs = require('fs');
+const faker = require('faker');
 
-seed();
+const file = fs.createWriteStream('./fakerClimb.csv');
+
+function seedUser(writer, callback) {
+
+  let i = 100;
+  let randomData = function (id) {
+    return JSON.stringify({
+      _id: id,
+      name:faker.random.words(),
+      tagline: faker.lorem.sentence(),
+      type: 'Restaurant',
+      vicinity: faker.address.streetAddress() + ', ' + faker.address.city(),
+      priceLevel: Number(faker.random.number(4)),
+      zagatFood: Number(faker.finance.amount(0,5,2)),
+      zagatDecor: Number(faker.finance.amount(0,5,2)),
+      zagatService: Number(faker.finance.amount(0,5,2)),
+      longDescription: faker.lorem.paragraph()
+    }) + '\n';
+  }
+  write();
+  function write() {
+    let ok = true;
+    do {
+      i--;
+      let data = randomData(i)
+      if (i === 0) {
+        // last time!
+        writer.write(data, callback);
+      } else {
+        // see if we should continue, or wait
+        // don't pass the callback, because we're not done yet.
+        ok = writer.write(data);
+      }
+    } while (i > 0 && ok);
+    if (i > 0) {
+      // had to stop early!
+      // write some more once it drains
+      writer.once('drain', write);
+    }
+  }
+}
+
+
+
+
+seed(file,function () {
+  console.log('done');
+})
+
+

@@ -1,2 +1,2 @@
-# hakuza
-Udemy clone
+# climber
+Where you go when you wanna track your climbs!
